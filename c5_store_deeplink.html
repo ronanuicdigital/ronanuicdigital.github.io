@@ -11,14 +11,19 @@ function openApp() {
 
   var iosStore = "https://apps.apple.com/app/id456000021";
   var androidStore = "https://play.google.com/store/apps/details?id=com.example.myapp";
-
   var scheme = "my5://home";
+
+  document.addEventListener("visibilitychange", function () {
+      if (document.hidden) {
+          clearTimeout(fallbackTimer);
+      }
+  });
 
   if (/android/i.test(ua)) {
 
       window.location = scheme;
 
-      setTimeout(function() {
+      fallbackTimer = setTimeout(function() {
           window.location = androidStore;
       }, 2000);
 
@@ -27,7 +32,7 @@ function openApp() {
 
       window.location = scheme;
 
-      setTimeout(function() {
+      fallbackTimer = setTimeout(function() {
           window.location = iosStore;
       }, 2000);
 
