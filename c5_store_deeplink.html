@@ -2,54 +2,93 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>Opening app…</title>
+<title>TEST TSET Opening app…</title>
 
 <script>
-function openApp() {
 
-  var ua = navigator.userAgent || navigator.vendor || window.opera;
+const APP_SCHEME = "my5://home"
+const IOS_STORE = "https://apps.apple.com/app/id456000021"
+const ANDROID_STORE = "https://play.google.com/store/apps/details?id=com.example.myapp"
 
-  var iosStore = "https://apps.apple.com/app/id456000021";
-  var androidStore = "https://play.google.com/store/apps/details?id=com.example.myapp";
-  var scheme = "my5://home";
+let fallbackTimer
+let appOpened = false
 
-  document.addEventListener("visibilitychange", function () {
-      if (document.hidden) {
-          clearTimeout(fallbackTimer);
-      }
-  });
+function detectPlatform() {
 
-  if (/android/i.test(ua)) {
+    const ua = navigator.userAgent || navigator.vendor || window.opera
 
-      window.location = scheme;
+    if (/android/i.test(ua)) return "android"
 
-      fallbackTimer = setTimeout(function() {
-          window.location = androidStore;
-      }, 2000);
+    if (/iPad|iPhone|iPod/.test(ua) && !window.MSStream) return "ios"
 
-  }
-  else if (/iPad|iPhone|iPod/.test(ua) && !window.MSStream) {
-
-      window.location = scheme;
-
-      fallbackTimer = setTimeout(function() {
-          window.location = iosStore;
-      }, 2000);
-
-  }
-  else {
-
-      // Desktop fallback
-      window.location = "https://www.channel5.com/settings";
-
-  }
+    return "desktop"
 }
 
-window.onload = openApp;
+function cancelFallback() {
+
+    appOpened = true
+    if (fallbackTimer) {
+        clearTimeout(fallbackTimer)
+    }
+}
+
+function openApp() {
+
+    const platform = detectPlatform()
+
+    if (platform === "desktop") {
+        window.location = "/download"
+        return
+    }
+
+    // Detect if browser leaves page (app launch)
+    window.addEventListener("blur", cancelFallback)
+    document.addEventListener("visibilitychange", function () {
+        if (document.hidden) cancelFallback()
+    })
+    window.addEventListener("pagehide", cancelFallback)
+
+    // Attempt to open the app
+    window.location = APP_SCHEME
+
+    fallbackTimer = setTimeout(function () {
+
+        if (appOpened) return
+
+        if (platform === "ios") {
+            window.location = IOS_STORE
+        }
+
+        if (platform === "android") {
+            window.location = ANDROID_STORE
+        }
+
+    }, 1800)
+}
+
+window.onload = openApp
+
 </script>
+
 </head>
 
 <body>
+
 <p>Opening the app…</p>
+
+<p>If nothing happens:</p>
+
+<p>
+<a href="my5://home">Open the app</a>
+</p>
+
+<p>
+<a href="https://apps.apple.com/app/id456000021">Download on the App Store</a>
+</p>
+
+<p>
+<a href="https://play.google.com/store/apps/details?id=com.example.myapp">Get it on Google Play</a>
+</p>
+
 </body>
 </html>
