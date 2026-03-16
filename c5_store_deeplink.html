@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Opening app…</title>
+
+<script>
+function openApp() {
+
+  var ua = navigator.userAgent || navigator.vendor || window.opera;
+
+  var iosStore = "https://apps.apple.com/app/id456000021";
+  var androidStore = "https://play.google.com/store/apps/details?id=com.example.myapp";
+
+  var scheme = "my5://home";
+
+  if (/android/i.test(ua)) {
+
+      window.location = scheme;
+
+      setTimeout(function() {
+          window.location = androidStore;
+      }, 2000);
+
+  }
+  else if (/iPad|iPhone|iPod/.test(ua) && !window.MSStream) {
+
+      window.location = scheme;
+
+      setTimeout(function() {
+          window.location = iosStore;
+      }, 2000);
+
+  }
+  else {
+
+      // Desktop fallback
+      window.location = "https://www.channel5.com/settings";
+
+  }
+}
+
+window.onload = openApp;
+</script>
+</head>
+
+<body>
+<p>Opening the app…</p>
+</body>
+</html>
