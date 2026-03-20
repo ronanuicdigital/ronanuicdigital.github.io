@@ -1,0 +1,12 @@
+{
+  "applinks": {
+    "details": [
+      {
+        "appID": "2J9PX4GFQ8.com.uicdigital.applinktester",
+        "paths": [
+          "/*"
+        ]
+      }
+    ]
+  }
+}
