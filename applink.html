@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Opening app…</title>
+
+<style>
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    text-align: center;
+    padding: 20px;
+  }
+
+  h1 { font-size: 26px; }
+  p { font-size: 16px; }
+
+  .log {
+    text-align: left;
+    font-size: 14px;
+    margin-top: 20px;
+    background: #f5f5f5;
+    padding: 12px;
+    border-radius: 8px;
+    max-height: 200px;
+    overflow-y: auto;
+  }
+</style>
+
+<script>
+
+const APP_SCHEME = "myapp://home"
+const IOS_STORE = "https://apps.apple.com/app/id1234567890"
+const ANDROID_STORE = "https://play.google.com/store/apps/details?id=com.example.myapp"
+
+let fallbackTimer
+let appOpened = false
+
+function log(msg) {
+    console.log(msg)
+
+    const el = document.getElementById("log")
+    if (el) {
+        el.innerHTML += msg + "<br>"
+    }
+}
+
+function detectPlatform() {
+    const ua = navigator.userAgent || navigator.vendor || window.opera
+    log("User agent: " + ua)
+
+    if (/android/i.test(ua)) return "android"
+    if (/iPad|iPhone|iPod/.test(ua) && !window.MSStream) return "ios"
+
+    return "desktop"
+}
+
+function cancelFallback(reason) {
+    log("Cancel fallback: " + reason)
+    appOpened = true
+    if (fallbackTimer) clearTimeout(fallbackTimer)
+}
+
+function openApp() {
+
+    const platform = detectPlatform()
+    log("Detected platform: " + platform)
+
+    if (platform === "desktop") {
+        alert("Desktop detected — no redirect")
+        return
+    }
+
+    window.addEventListener("blur", () => cancelFallback("blur"))
+    window.addEventListener("pagehide", () => cancelFallback("pagehide"))
+
+    document.addEventListener("visibilitychange", function () {
+        log("visibilitychange: hidden=" + document.hidden)
+        if (document.hidden) {
+            cancelFallback("visibilitychange")
+        }
+    })
+
+    log("Attempting to open app via scheme: " + APP_SCHEME)
+    alert("Attempting to open app")
+
+    setTimeout(() => {
+        window.location = APP_SCHEME
+    }, 100)
+
+    fallbackTimer = setTimeout(function () {
+
+        log("Fallback timer fired")
+
+        if (appOpened) {
+            log("App was opened, skipping store redirect")
+            return
+        }
+
+        alert("App did not open — redirecting to store")
+
+        if (platform === "ios") {
+            log("Redirecting to iOS store")
+            window.location = IOS_STORE
+        }
+
+        if (platform === "android") {
+            log("Redirecting to Android store")
+            window.location = ANDROID_STORE
+        }
+
+    }, 2000)
+}
+
+window.onload = function () {
+    log("Page loaded")
+    openApp()
+}
+
+</script>
+
+</head>
+
+<body>
+
+<h1>Opening the app…</h1>
+
+<p>Check alerts and log below for debugging.</p>
+
+<div id="log" class="log"></div>
+
+</body>
+</html>
