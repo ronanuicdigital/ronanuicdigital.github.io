@@ -72,7 +72,17 @@ function openApp() {
         return
     }
 
-    window.addEventListener("blur", () => cancelFallback("blur"))
+    //window.addEventListener("blur", () => cancelFallback("blur"))
+    // window.addEventListener("blur", () => {
+    //     log("blur fired (ignored)")
+    // })
+    document.addEventListener("visibilitychange", function () {
+        log("visibilitychange: hidden=" + document.hidden)
+
+        if (document.hidden) {
+            cancelFallback("visibilitychange")
+        }
+    })
     window.addEventListener("pagehide", () => cancelFallback("pagehide"))
 
     document.addEventListener("visibilitychange", function () {
